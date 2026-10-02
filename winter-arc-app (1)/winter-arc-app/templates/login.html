@@ -1,0 +1,29 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Winter Arc: log in</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#EBF3F8;--card:#fff;--ink:#0E1B2A;--mut:#5A6E81;--line:#D2E0EA;--deep:#1F5F86;--ember:#D9582F}
+@media(prefers-color-scheme:dark){:root{--bg:#08121D;--card:#0F1D2C;--ink:#E6F1F8;--mut:#8FA5B8;--line:#1D3247;--deep:#6FB4DB}}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;display:grid;place-items:center;padding:16px;background:radial-gradient(60% 50% at 15% 10%,rgba(127,187,220,.5),transparent 70%),radial-gradient(60% 50% at 85% 90%,rgba(100,130,230,.35),transparent 70%),var(--bg);color:var(--ink);font-family:"Bricolage Grotesque",system-ui,sans-serif}
+.box{width:100%;max-width:380px;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:26px}
+h1{margin:0 0 4px;font-size:2.4rem;letter-spacing:-.03em;line-height:1}
+p{margin:0 0 16px;color:var(--mut)}
+label{display:block;font-size:.85rem;color:var(--mut);margin:12px 0 4px}
+input{width:100%;font:inherit;color:inherit;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.row{display:flex;gap:10px;margin-top:18px}
+button{flex:1;font:inherit;font-weight:600;border-radius:10px;padding:10px;cursor:pointer;border:1px solid var(--deep);background:var(--deep);color:#fff}
+button.alt{background:transparent;color:var(--ink);border-color:var(--line)}
+@media(prefers-color-scheme:dark){button:not(.alt){color:#08121D}}
+.err{color:var(--ember);min-height:1.3em;margin-top:12px;font-size:.92rem}
+:focus-visible{outline:2px solid var(--ember);outline-offset:2px}
+</style></head><body>
+<form class="box" method="post" action="/login">
+  <h1>❄️ Winter Arc</h1>
+  <p>Log in to keep your progress on any device.</p>
+  <label for="u">Username</label><input id="u" name="username" autocomplete="username" required minlength="3" maxlength="30">
+  <label for="p">Password</label><input id="p" name="password" type="password" autocomplete="current-password" required minlength="6">
+  <div class="row"><button name="mode" value="login">Log in</button><button class="alt" name="mode" value="register">Create account</button></div>
+  <div class="err" role="alert">@@ERROR@@</div>
+</form></body></html>

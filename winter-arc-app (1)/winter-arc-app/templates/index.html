@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Winter Arc Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#EBF3F8;--card:#fff;--ink:#0E1B2A;--mut:#5A6E81;--line:#D2E0EA;--ice:#7FBBDC;--deep:#1F5F86;--ember:#D9582F;--l1:#CFE6F3;--l2:#8EC3E1;--l3:#1F5F86;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#08121D;--card:#0F1D2C;--ink:#E6F1F8;--mut:#8FA5B8;--line:#1D3247;--ice:#7FBBDC;--deep:#6FB4DB;--ember:#F27E55;--l1:#17324A;--l2:#2B6C93;--l3:#8FD0F0}}
+:root[data-theme="dark"]{--bg:#08121D;--card:#0F1D2C;--ink:#E6F1F8;--mut:#8FA5B8;--line:#1D3247;--ice:#7FBBDC;--deep:#6FB4DB;--ember:#F27E55;--l1:#17324A;--l2:#2B6C93;--l3:#8FD0F0}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.45}
+.wrap{max-width:1260px;margin:0 auto;padding:20px 16px 48px}
+.hero{display:flex;flex-wrap:wrap;gap:20px;align-items:center;justify-content:space-between;padding:12px 4px 24px}
+.hero h1{margin:0;font-size:clamp(3.2rem,12vw,6.5rem);line-height:.9;font-weight:800;letter-spacing:-.04em}
+.hero p{margin:8px 0 0;color:var(--mut);max-width:44ch}
+.pills{display:flex;gap:10px;flex-wrap:wrap}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 16px;min-width:96px}
+.pill b{display:block;font-size:1.7rem;line-height:1.1}.pill span{font-size:.82rem;color:var(--mut)}
+.pill.hot b{color:var(--ember)}
+.grid{display:grid;gap:16px;grid-template-columns:repeat(12,1fr)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;min-width:0}
+.c7{grid-column:span 7}.c5{grid-column:span 5}.c12{grid-column:span 12}.c6{grid-column:span 6}
+@media(max-width:820px){.c7,.c5,.c6{grid-column:span 12}}
+h2{margin:0 0 12px;font-size:1.15rem;font-weight:600}
+.sub{color:var(--mut);font-size:.88rem;margin:-6px 0 12px}
+.habit{display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;margin-bottom:8px;cursor:pointer;user-select:none}
+.habit input{width:20px;height:20px;accent-color:var(--deep)}
+.habit.done{background:var(--l1);border-color:var(--l2)}
+.habit small{margin-left:auto;color:var(--mut)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:10px 0}
+button,input,textarea,select{font:inherit;color:inherit}
+button{background:var(--deep);color:#fff;border:0;border-radius:10px;padding:8px 14px;cursor:pointer;font-weight:600}
+:root[data-theme="dark"] button,button.ghost{color:var(--ink)}
+button.ghost{background:transparent;border:1px solid var(--line)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) button:not(.ghost){color:#08121D}}
+button:focus-visible,input:focus-visible,textarea:focus-visible,.habit:focus-within,.day:focus-visible{outline:2px solid var(--ember);outline-offset:2px}
+input[type=number],input[type=text],textarea,select{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 10px;width:100%}
+input[type=number]{width:90px}
+.lbl{font-size:.85rem;color:var(--mut)}
+.meal{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px dashed var(--line);font-size:.92rem}
+.meal button{padding:0 8px;background:transparent;color:var(--mut)}
+.bar{height:10px;border-radius:6px;background:var(--l1);overflow:hidden}.bar i{display:block;height:100%;background:var(--deep);transition:width .3s}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.cal .h{font-size:.75rem;color:var(--mut);text-align:center}
+.day{aspect-ratio:1;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--ink);padding:0;font-size:.82rem;font-weight:400}
+.day.l1{background:var(--l1)}.day.l2{background:var(--l2)}.day.l3{background:var(--l3);color:#fff}
+.day.today{border:2px solid var(--ember)}.day.sel{outline:2px solid var(--ink)}
+.day.off{visibility:hidden}
+.charts{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.charts svg{width:100%;height:auto;display:block}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.stats div{border:1px solid var(--line);border-radius:12px;padding:10px 12px}.stats b{font-size:1.4rem;display:block}.stats span{font-size:.8rem;color:var(--mut)}
+.ai{white-space:pre-wrap;background:var(--bg);border-radius:12px;padding:12px;min-height:90px;font-size:.95rem}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:.9rem;color:var(--mut)}
+.flow span{border:1px solid var(--line);border-radius:999px;padding:4px 12px;background:var(--card);color:var(--ink)}
+.moods button{background:transparent;border:1px solid var(--line);font-size:1.3rem;padding:4px 10px}
+.moods button.on{background:var(--l1);border-color:var(--deep)}
+ .arc{display:grid;grid-template-columns:repeat(18,1fr);gap:4px}.arc i{aspect-ratio:1;border-radius:4px;border:1px solid var(--line)}.arc i.l1{background:var(--l1)}.arc i.l2{background:var(--l2)}.arc i.l3{background:var(--l3)}.arc i.fut{opacity:.35}
+.badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.badge{border:1px solid var(--line);border-radius:999px;padding:5px 12px;font-size:.85rem}.badge.off{opacity:.35;filter:grayscale(1)}
+.big{font-size:3.4rem;font-weight:800;letter-spacing:-.03em;line-height:1}
+#card{width:100%;height:auto;border-radius:14px;border:1px solid var(--line);display:block}
+textarea#cap{min-height:150px}
+input[type=time]{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:6px 10px}
+.sched{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
+.sched .row{margin:4px 0 0}.sched input{flex:1 1 90px;min-width:0}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.chips button{padding:5px 11px;font-weight:400;font-size:.88rem}
+.chips button[aria-pressed="true"]{background:var(--l1);border-color:var(--deep);font-weight:600}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none}
+body[data-bg="dots"]::before{background:radial-gradient(var(--line) 1.6px,transparent 1.8px) 0 0/22px 22px}
+body[data-bg="grid"]::before{background:linear-gradient(var(--line) 1px,transparent 1px) 0 0/30px 30px,linear-gradient(90deg,var(--line) 1px,transparent 1px) 0 0/30px 30px}
+body[data-bg="stripes"]::before{background:repeating-linear-gradient(135deg,var(--line) 0 1px,transparent 1px 16px)}
+body[data-bg="aurora"]::before{background:radial-gradient(60% 50% at 15% 10%,rgba(127,187,220,.5),transparent 70%),radial-gradient(50% 45% at 90% 20%,rgba(120,220,190,.3),transparent 70%),radial-gradient(60% 50% at 60% 100%,rgba(100,130,230,.35),transparent 70%)}
+body[data-bg="snow"]::before,body[data-bg="fall"]::before{background:radial-gradient(circle,rgba(127,187,220,.75) 2px,transparent 2.5px) 0 0/90px 90px,radial-gradient(circle,rgba(127,187,220,.55) 1.5px,transparent 2px) 40px 30px/140px 140px,radial-gradient(circle,rgba(127,187,220,.45) 3px,transparent 3.5px) 70px 80px/210px 210px}
+body[data-bg="fall"]::before{animation:fall 40s linear infinite}
+@keyframes fall{to{background-position:0 1260px,40px 1290px,70px 1340px}}
+@media(prefers-reduced-motion:reduce){body[data-bg="fall"]::before{animation:none}}
+.grid[hidden]{display:none}
+.fold{position:relative;display:inline-block;margin:6px 0 4px}
+.fold>button{background:var(--card);font-weight:600;padding:9px 16px;border-radius:12px}
+.menu{position:absolute;left:0;top:calc(100% + 6px);z-index:20;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:6px;display:grid;gap:2px;min-width:210px;box-shadow:0 10px 28px rgba(0,0,0,.18)}
+.menu[hidden]{display:none}
+.logout{padding:9px 12px;color:var(--ink);text-decoration:none;border-radius:8px;font-size:.95rem}.logout:hover{background:var(--l1)}
+.msep{height:1px;background:var(--line);margin:6px 4px}.msub{padding:4px 12px 0}
+.menu .chips{display:grid;gap:2px;margin:0}.menu .chips button{padding:7px 12px;border:0;border-radius:8px;text-align:left}.menu .chips button[aria-pressed="true"]{background:var(--l1);font-weight:600}
+.menu button{background:transparent;color:var(--ink);text-align:left;font-weight:400;padding:9px 12px}
+.menu button[aria-selected="true"]{background:var(--l1);font-weight:600}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 16px;border-bottom:1px solid var(--line)}
+.tabs button{background:var(--card);color:var(--ink);border:1px solid var(--line);border-bottom:0;border-radius:12px 12px 0 0;padding:10px 16px;font-weight:600}
+.tabs button[aria-selected="true"]{background:var(--l1);box-shadow:inset 0 -3px 0 var(--ember)}
+@media(min-width:821px){
+.layout{display:grid;grid-template-columns:230px minmax(0,1fr);gap:22px;align-items:start}
+.main{min-width:0}
+.fold{display:block;position:sticky;top:12px;margin:6px 0 0}
+#foldBtn{display:none}
+#foldMenu,#foldMenu[hidden]{display:grid;position:static;box-shadow:none;min-width:0;padding:8px}
+.menu>button[data-tab]{border-left:5px solid transparent;border-radius:6px 12px 12px 6px;padding:11px 12px;font-weight:600}
+.menu>button[data-tab][aria-selected="true"]{border-left-color:var(--ember)}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head>
+<body><div class="wrap"><div class="layout">
+<nav class="fold" id="tabs" aria-label="Folders">
+  <button class="ghost" id="foldBtn" aria-haspopup="true" aria-expanded="false"><span id="foldName">📁 Track today</span> ▾</button>
+  <div class="menu" id="foldMenu" hidden>
+    <button data-tab="track">📁 Track today</button><button data-tab="progress">📊 Progress</button><button data-tab="coach">🤖 Smart coach</button><button data-tab="share">📤 Share</button>
+    <div class="msep"></div>
+    <button id="theme">🌓 Dark / light</button>
+    <a class="logout" href="/logout">🚪 Log out (@@USER@@)</a>
+    <div class="lbl msub">🖼️ Background</div>
+    <div class="chips" id="bgs" role="group" aria-label="Background pattern"></div>
+  </div>
+</nav>
+<div class="main">
+<header class="hero">
+  <div>
+    <h1>❄️ Winter Arc</h1>
+    <p id="tag">Small habits, logged daily, until the season is yours.</p>
+  </div>
+  <div class="pills">
+    <div class="pill"><b id="pDay">1</b><span id="pDayL">of 90 days</span></div>
+    <div class="pill hot"><b id="pStreak">0</b><span>day streak 🔥</span></div>
+    <div class="pill"><b id="pToday">0%</b><span>today</span></div>
+  </div>
+</header>
+
+<div class="grid tab" id="t-track" role="tabpanel">
+  <section class="card c7">
+    <h2 id="selTitle">Today</h2>
+    <p class="sub">A day counts toward your streak when at least 5 of 6 habits are done.</p>
+    <div class="bar" aria-hidden="true"><i id="dayBar" style="width:0"></i></div>
+    <div id="habits" style="margin-top:14px"></div>
+
+    <div class="row">
+      <span class="lbl">Water (glasses)</span>
+      <button class="ghost" data-w="-1" aria-label="Remove glass">−</button>
+      <b id="waterN">0</b><span class="lbl" id="waterG"></span>
+      <button data-w="1" aria-label="Add glass">+ glass</button>
+    </div>
+    <div class="sched">
+      <div><label class="lbl" for="wake">🌅 Wake-up time</label><div class="row"><input id="wake" type="time"><button class="ghost" id="nowWake">Now</button></div></div>
+      <div><label class="lbl" for="bed">🌙 Bedtime (last night)</label><div class="row"><input id="bed" type="time"><button class="ghost" id="nowBed">Now</button></div></div>
+    </div>
+    <div class="row">
+      <label class="lbl" for="sleep">Sleep hours (auto)</label><input id="sleep" type="number" min="0" max="16" step="0.5">
+      <label class="lbl" for="study">Study (hours)</label><input id="study" type="number" min="0" max="16" step="0.5">
+    </div>
+    <div class="row moods" id="moods"><span class="lbl">Mood</span></div>
+    <label class="lbl" for="note">🎯 Goal for the day</label>
+    <textarea id="note" rows="2" placeholder="What is the one thing you must finish today?"></textarea>
+  </section>
+
+  <section class="card c5">
+    <h2>Diet</h2>
+    <div class="row"><b id="calT">0</b><span class="lbl" id="calG"></span></div>
+    <div class="bar" aria-hidden="true"><i id="calBar" style="width:0"></i></div>
+    <div class="row">
+      <input type="text" id="mName" placeholder="Meal (e.g. oats + eggs)" style="flex:1 1 140px;width:auto">
+      <input type="number" id="mCal" placeholder="kcal" min="0">
+      <button id="mAdd">Add meal</button>
+    </div>
+    <div id="meals"></div>
+    <h2 style="margin-top:18px">Goals</h2>
+    <div class="row">
+      <label class="lbl">Water <input type="number" id="gW" min="1" max="30"></label>
+      <label class="lbl">Sleep h <input type="number" id="gS" min="1" max="12" step="0.5"></label>
+      <label class="lbl">kcal <input type="number" id="gC" min="800" max="6000" step="50"></label>
+      <label class="lbl">Wake by <input type="time" id="gK"></label>
+    </div>
+    <label class="lbl" for="start">Arc start date</label>
+    <input type="date" id="start" style="width:auto;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:6px 10px">
+  </section>
+
+  <section class="card c12">
+    <h2>Focus timer</h2>
+    <div class="big" id="tm">25:00</div>
+    <div class="row"><button id="tGo">Start focus</button><button class="ghost" id="tReset">Reset</button></div>
+    <p class="sub" id="tNote" style="margin:0">Finish a 25-minute session and 0.5 study hours are logged for today.</p>
+  </section>
+</div>
+<div class="grid tab" id="t-progress" hidden role="tabpanel">
+  <section class="card c6">
+    <div class="row" style="justify-content:space-between;margin-top:0">
+      <h2 style="margin:0" id="calTitle">Calendar</h2>
+      <div><button class="ghost" id="prevM" aria-label="Previous month">‹</button> <button class="ghost" id="nextM" aria-label="Next month">›</button></div>
+    </div>
+    <div class="cal" id="cal"></div>
+    <p class="sub" style="margin:10px 0 0">Tap a day to view or edit it. Darker means more habits done.</p>
+  </section>
+
+  <section class="card c6">
+    <h2>Statistics</h2>
+    <div class="stats" id="stats"></div>
+    </section>
+
+  <section class="card c12">
+    <h2>Last 7 days</h2>
+    <div class="charts" id="charts"></div>
+  </section>
+
+  <section class="card c12">
+    <h2>Level and badges</h2>
+    <div class="row" style="margin-top:0;justify-content:space-between"><b id="lvl" style="font-size:1.3rem"></b><span class="lbl" id="xp"></span></div>
+    <div class="bar" aria-hidden="true"><i id="xpBar" style="width:0"></i></div>
+    <p class="sub" id="xpNext" style="margin:6px 0 0"></p>
+    <div class="badges" id="badges"></div>
+  </section>
+
+  <section class="card c12">
+    <h2>90-day arc map</h2>
+    <div class="arc" id="arcmap"></div>
+  </section>
+</div>
+<div class="grid tab" id="t-coach" hidden role="tabpanel">
+  <section class="card c12">
+    <h2>🤖 Smart coach</h2>
+    <p class="sub">Your coach reads the last 7 days of your tracker. Pick a quick question or type your own.</p>
+    <div class="row" style="margin-top:0"><button class="ghost" data-q="Give me a weekly review.">Weekly review</button><button class="ghost" data-q="Plan my tomorrow hour by hour.">Plan tomorrow</button><button class="ghost" data-q="How can I improve my sleep and wake-up time?">Sleep and wake-up</button><button class="ghost" data-q="Give me diet and water tips based on my logs.">Diet tips</button></div>
+    <div class="ai" id="aiOut">Ask for a weekly review or a plan for tomorrow, based on your last 7 days.</div>
+    <div class="row">
+      <input type="text" id="aiQ" placeholder="Optional question, e.g. how do I sleep better?" style="flex:1 1 180px;width:auto">
+      <button id="aiGo">Ask coach</button>
+    </div>
+  </section>
+</div>
+<div class="grid tab" id="t-share" hidden role="tabpanel">
+  <section class="card c12">
+    <h2>Share your arc on social media</h2>
+    <p class="sub">A 1200 x 627 image that works on LinkedIn, X, Facebook and Instagram, built from your real numbers.</p>
+    <canvas id="card" width="1200" height="627"></canvas>
+    <div class="row"><button id="dl">Download image</button><select id="plat" aria-label="Platform" style="width:auto"><option>LinkedIn</option><option>Instagram</option><option>X</option><option>Facebook</option></select><button id="capGo">Write caption</button><button class="ghost" id="capCopy">Copy caption</button></div>
+    <textarea id="cap" placeholder="Your AI-written caption appears here. You can edit it before posting."></textarea>
+  </section>
+
+  <section class="card c12">
+    <h2>How it fits together</h2>
+    <div class="flow"><span>Daily checklist</span>→<span>Saved in your browser database</span>→<span>Statistics, calendar, charts</span>→<span>Smart coach</span>→<span>Online at a shareable link</span></div>
+  </section>
+</div>
+</div></div></div>
+
+<script>window.__STATE__=/*STATE*/null;</script>
+<script>
+const KEY="winterArc.v1";
+const HABITS=[["study","📚 Study"],["exercise","🏋️ Exercise"],["reading","📖 Reading"],["diet","🥗 Stuck to diet"]];
+const MOODS=["😞","😐","🙂","😄"];
+const $=id=>document.getElementById(id);
+const ymd=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+const parse=s=>{const [y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d)};
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const todayK=ymd(new Date());
+let S={start:todayK,goals:{w:8,s:7,c:2200},days:{}};
+try{if(window.__STATE__)S=Object.assign(S,window.__STATE__)}catch(e){}
+S.goals=Object.assign({w:8,s:7,c:2200,k:"06:00"},S.goals);
+S.bg=S.bg||"snow";S.tab=S.tab||"track";
+const tmin=v=>{if(!v)return null;const [h,m]=v.split(":").map(Number);return h*60+m};
+const fm=m=>{m=Math.round(m);const h=Math.floor(m/60)%24,mm=String(m%60).padStart(2,"0");return ((h+11)%12+1)+":"+mm+(h<12?" AM":" PM")};
+const nowT=()=>{const n=new Date();return String(n.getHours()).padStart(2,"0")+":"+String(n.getMinutes()).padStart(2,"0")};
+const recalc=d=>{const a=tmin(d.bd),b=tmin(d.wk);if(a!=null&&b!=null)d.sl=Math.round(((b-a+1440)%1440)/30)/2};
+function wakeStats(){const w=Object.keys(S.days).filter(k=>tmin((S.days[k]||{}).wk)!=null);return{avg:w.length?fm(w.reduce((a,k)=>a+tmin(S.days[k].wk),0)/w.length):"–",early:w.filter(k=>tmin(S.days[k].wk)<=tmin(S.goals.k)).length}}
+let sel=todayK, view=parse(todayK);
+let _st=null;
+const save=()=>{clearTimeout(_st);_st=setTimeout(()=>{fetch("/api/state",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(S),keepalive:true}).then(r=>{if(r.status===401)location.href="/login"}).catch(()=>{})},500)};
+const day=k=>S.days[k]||(S.days[k]={t:{},w:0,sl:0,st:0,meals:[],mood:-1,note:""});
+const peek=k=>S.days[k]||{t:{},w:0,sl:0,st:0,meals:[]};
+const cnt=k=>{const d=peek(k);let n=HABITS.filter(h=>d.t&&d.t[h[0]]).length;if(d.w>=S.goals.w)n++;if(d.sl>=S.goals.s)n++;return n};
+const kcal=k=>(peek(k).meals||[]).reduce((a,m)=>a+m.c,0);
+function addDays(k,n){const d=parse(k);d.setDate(d.getDate()+n);return ymd(d)}
+function streaks(){
+  let cur=0,k=cnt(todayK)>=5?todayK:addDays(todayK,-1);
+  while(cnt(k)>=5){cur++;k=addDays(k,-1)}
+  let best=0,run=0;Object.keys(S.days).sort().forEach((x,i,a)=>{
+    if(cnt(x)>=5){run=(i>0&&addDays(a[i-1],1)===x&&cnt(a[i-1])>=5)?run+1:1;best=Math.max(best,run)}else run=0});
+  return [cur,best]}
+function lastN(n){return Array.from({length:n},(_,i)=>addDays(todayK,i-(n-1)))}
+
+function render(){
+  const d=day(sel),c=cnt(sel);
+  const n=Math.floor((parse(todayK)-parse(S.start))/864e5)+1;
+  $("pDay").textContent=Math.max(n,0);$("pDayL").textContent="of 90 days";
+  $("pStreak").textContent=streaks()[0];$("pToday").textContent=Math.round(cnt(todayK)/6*100)+"%";
+  $("selTitle").textContent=sel===todayK?"Today":parse(sel).toLocaleDateString(undefined,{weekday:"long",day:"numeric",month:"short"});
+  $("dayBar").style.width=(c/6*100)+"%";
+  $("habits").innerHTML=HABITS.map(h=>`<label class="habit ${d.t[h[0]]?"done":""}"><input type="checkbox" data-h="${h[0]}" ${d.t[h[0]]?"checked":""}>${h[1]}</label>`).join("")+
+   `<div class="habit ${d.w>=S.goals.w?"done":""}" style="cursor:default">💧 Water<small>${d.w}/${S.goals.w} glasses</small></div>`+
+   `<div class="habit ${d.sl>=S.goals.s?"done":""}" style="cursor:default">😴 Sleep<small>${d.sl}/${S.goals.s} hours</small></div>`;
+  $("waterN").textContent=d.w;$("waterG").textContent="goal "+S.goals.w;
+  if(document.activeElement!==$("sleep"))$("sleep").value=d.sl||"";
+  if(document.activeElement!==$("study"))$("study").value=d.st||"";
+  $("moods").innerHTML='<span class="lbl">Mood</span>'+MOODS.map((m,i)=>`<button class="${d.mood===i?"on":""}" data-m="${i}" aria-label="Mood ${i+1} of 4">${m}</button>`).join("");
+  if(document.activeElement!==$("note"))$("note").value=d.note||"";
+  const k=kcal(sel);$("calT").textContent=k+" kcal";$("calG").textContent="of "+S.goals.c;
+  $("calBar").style.width=Math.min(100,k/S.goals.c*100)+"%";
+  $("meals").innerHTML=d.meals.length?d.meals.map((m,i)=>`<div class="meal"><span>${esc(m.n)}</span><span>${m.c} kcal <button data-del="${i}" aria-label="Delete meal">✕</button></span></div>`).join(""):'<p class="sub">No meals yet. Add your first one above.</p>';
+  $("wake").value=d.wk||"";$("bed").value=d.bd||"";$("gK").value=S.goals.k;$("gW").value=S.goals.w;$("gS").value=S.goals.s;$("gC").value=S.goals.c;$("start").value=S.start;
+  renderCal();renderStats();renderCharts();renderExtras();applyTab();
+  if(cnt(sel)===6){if(!window._f)burst();window._f=1}else window._f=0;
+}
+function renderCal(){
+  const y=view.getFullYear(),m=view.getMonth();
+  $("calTitle").textContent=view.toLocaleDateString(undefined,{month:"long",year:"numeric"});
+  const first=new Date(y,m,1).getDay(),len=new Date(y,m+1,0).getDate();
+  let h=["S","M","T","W","T","F","S"].map(x=>`<div class="h">${x}</div>`).join("");
+  for(let i=0;i<first;i++)h+='<button class="day off" tabindex="-1" aria-hidden="true"></button>';
+  for(let i=1;i<=len;i++){const k=ymd(new Date(y,m,i)),c=cnt(k);
+    const l=c===0?"":c<=2?"l1":c<=4?"l2":"l3";
+    h+=`<button class="day ${l} ${k===todayK?"today":""} ${k===sel?"sel":""}" data-d="${k}" aria-label="${k}, ${c} of 6 done">${i}</button>`}
+  $("cal").innerHTML=h;
+}
+function renderStats(){
+  const keys=Object.keys(S.days).filter(k=>cnt(k)>0||kcal(k)>0);
+  const avg=f=>{const v=keys.map(f).filter(x=>x>0);return v.length?(v.reduce((a,b)=>a+b,0)/v.length):0};
+  const perfect=keys.filter(k=>cnt(k)===6).length,good=keys.filter(k=>cnt(k)>=5).length;
+  const st=[[good,"streak-worthy days"],[streaks()[1],"best streak"],[perfect,"perfect days"],
+   [avg(k=>peek(k).w).toFixed(1),"avg glasses"],[avg(k=>peek(k).sl).toFixed(1),"avg sleep h"],
+   [Math.round(avg(kcal)),"avg kcal"],[wakeStats().avg,"avg wake-up"],[wakeStats().early,"early wake-ups"],[keys.reduce((a,k)=>a+(peek(k).st||0),0),"study hours total"]];
+  $("stats").innerHTML=st.map(s=>`<div><b>${s[0]}</b><span>${s[1]}</span></div>`).join("");
+}
+function bars(title,vals,labels,max,goal){
+  const W=300,H=140,bw=24,gap=(W-7*bw)/8;
+  let s=`<svg viewBox="0 0 ${W} ${H+22}" role="img" aria-label="${title}"><text x="0" y="12" font-size="12" fill="var(--mut)">${title}</text>`;
+  if(goal){const y=22+(H-22)*(1-goal/max);s+=`<line x1="0" x2="${W}" y1="${y}" y2="${y}" stroke="var(--ember)" stroke-dasharray="4 4"/>`}
+  vals.forEach((v,i)=>{const h=Math.max(2,(H-22)*Math.min(v,max)/max),x=gap+i*(bw+gap);
+    s+=`<rect x="${x}" y="${H-h}" width="${bw}" height="${h}" rx="5" fill="var(--deep)"><title>${v}</title></rect><text x="${x+bw/2}" y="${H+14}" font-size="11" text-anchor="middle" fill="var(--mut)">${labels[i]}</text>`});
+  return s+"</svg>"}
+function renderCharts(){
+  const ks=lastN(7),lb=ks.map(k=>"SMTWTFS"[parse(k).getDay()]);
+  $("charts").innerHTML=
+   bars("Habits done (of 6)",ks.map(cnt),lb,6,5)+
+   bars("Water (glasses)",ks.map(k=>peek(k).w||0),lb,Math.max(S.goals.w+2,10),S.goals.w)+
+   bars("Wake-up (hour, lower = earlier)",ks.map(k=>{const m=tmin(peek(k).wk);return m==null?0:+(m/60).toFixed(1)}),lb,12,tmin(S.goals.k)/60)+
+   bars("Sleep (hours)",ks.map(k=>peek(k).sl||0),lb,10,S.goals.s)+
+   bars("Calories (kcal)",ks.map(kcal),lb,Math.max(S.goals.c*1.3,1),S.goals.c);
+}
+
+document.addEventListener("click",e=>{
+  const t=e.target.closest("button");if(!t)return;const d=day(sel);
+  if(t.dataset.w){d.w=Math.max(0,d.w+Number(t.dataset.w))}
+  else if(t.dataset.m){d.mood=d.mood===+t.dataset.m?-1:+t.dataset.m}
+  else if(t.dataset.del){d.meals.splice(+t.dataset.del,1)}
+  else if(t.dataset.d){sel=t.dataset.d;S.tab="track"}
+  else if(t.dataset.tab){S.tab=t.dataset.tab;window.scrollTo(0,0)}
+  else if(t.id==="nowWake"){d.wk=nowT();recalc(d)}
+  else if(t.id==="nowBed"){d.bd=nowT();recalc(d)}
+  else if(t.id==="prevM"){view=new Date(view.getFullYear(),view.getMonth()-1,1);return renderCal()}
+  else if(t.id==="nextM"){view=new Date(view.getFullYear(),view.getMonth()+1,1);return renderCal()}
+  else if(t.id==="mAdd"){const n=$("mName").value.trim(),c=+$("mCal").value||0;if(!n)return;d.meals.push({n,c});$("mName").value="";$("mCal").value=""}
+  else return;
+  save();render();
+});
+document.addEventListener("change",e=>{
+  const i=e.target,d=day(sel);
+  if(i.dataset.h)d.t[i.dataset.h]=i.checked;
+  else if(i.id==="wake"||i.id==="bed"){d[i.id==="wake"?"wk":"bd"]=i.value;recalc(d)}
+  else if(i.id==="gK")S.goals.k=i.value||"06:00";
+  else if(i.id==="sleep")d.sl=+i.value||0;
+  else if(i.id==="study")d.st=+i.value||0;
+  else if(i.id==="gW")S.goals.w=+i.value||8;
+  else if(i.id==="gS")S.goals.s=+i.value||7;
+  else if(i.id==="gC")S.goals.c=+i.value||2200;
+  else if(i.id==="start")S.start=i.value||todayK;
+  else return;
+  save();render();
+});
+$("note").addEventListener("input",e=>{day(sel).note=e.target.value;save()});
+
+const coach=async(prompt,o={})=>{const r=await fetch("/api/coach",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({prompt})});let j={};try{j=await r.json()}catch(e){}
+  if(r.status===401){location.href="/login";throw{code:"login_required"}}
+  if(!r.ok)throw{code:j.error||"error"};if(o.onText)o.onText({text:j.text});return{text:j.text}};
+const dlShim={save:({filename,data})=>{const a=document.createElement("a");a.href=URL.createObjectURL(data);a.download=filename;document.body.appendChild(a);a.click();a.remove();return Promise.resolve()}};
+let sample=null;
+(async()=>{try{sample=coach}catch(e){}
+  if(!sample){$("aiOut").textContent="The The coach is not available right now.";$("aiGo").disabled=true}})();
+$("aiGo").addEventListener("click",async()=>{
+  if(!sample)return;
+  const data=lastN(7).map(k=>{const d=peek(k);return{date:k,habitsDone:cnt(k),water:d.w||0,sleepH:d.sl||0,wake:d.wk||"",bed:d.bd||"",studyH:d.st||0,kcal:kcal(k),mood:d.mood}});
+  const q=$("aiQ").value.trim()||"Give me a weekly review and a plan for tomorrow.";
+  $("aiOut").textContent="Thinking...";$("aiGo").disabled=true;
+  try{await sample("You are a concise, encouraging habit coach for a 90-day 'winter arc' self-improvement challenge. Use plain text, no markdown, under 160 words. Name one win, one weak spot, and 2 concrete actions.\nGoals: "+JSON.stringify(S.goals)+"\nLast 7 days (habitsDone is out of 6): "+JSON.stringify(data)+"\nRequest: "+q,{onText:({text})=>{$("aiOut").textContent=text},cache:false})}
+  catch(err){if(err&&err.code!=="cancelled")$("aiOut").textContent="Could not reach the coach ("+((err&&err.code)||"error")+"). Try again in a moment."}
+  $("aiGo").disabled=false});
+const TITLES=["Frostbitten","Snowbound","Ice Walker","Glacier","Blizzard","Winter King"];
+const QUOTES=["Small habits, logged daily, until the season is yours.","Cold mornings build warm futures.","You do not rise to your goals, you fall to your routine.","Show up on the days you do not feel like it.","One more day done is one more day ahead.","Discipline is just choosing what you want most."];
+const dayN=()=>Math.floor((parse(todayK)-parse(S.start))/864e5)+1;
+function totals(){let xp=0,perfect=0,water=0,study=0;Object.keys(S.days).forEach(k=>{const c=cnt(k);xp+=c*10+(c===6?20:0);if(c===6)perfect++;water+=peek(k).w||0;study+=peek(k).st||0});return{xp,perfect,water,study}}
+const lvl=xp=>Math.floor(Math.sqrt(xp/40))+1;
+function renderExtras(){
+  const t=totals(),L=lvl(t.xp),a=40*(L-1)**2,b=40*L*L,best=streaks()[1];
+  $("lvl").textContent="Level "+L+": "+TITLES[Math.min(L-1,5)];$("xp").textContent=t.xp+" XP";
+  $("xpBar").style.width=((t.xp-a)/(b-a)*100)+"%";$("xpNext").textContent=(b-t.xp)+" XP to level "+(L+1);
+  $("badges").innerHTML=[["🔥","3-day streak",best>=3],["⚡","7-day streak",best>=7],["🏔️","14-day streak",best>=14],["👑","30-day streak",best>=30],["💎","Perfect day",t.perfect>=1],["💧","100 glasses",t.water>=100],["📚","25 study hours",t.study>=25],["🌅","5 early wake-ups",wakeStats().early>=5]].map(x=>`<span class="badge ${x[2]?"":"off"}">${x[0]} ${x[1]}</span>`).join("");
+  let m="";for(let i=0;i<90;i++){const k=addDays(S.start,i),c=cnt(k),f=k>todayK;m+=`<i class="${f?"fut":c===0?"":c<=2?"l1":c<=4?"l2":"l3"}" title="Day ${i+1}: ${f?"upcoming":c+" of 6"}"></i>`}
+  $("arcmap").innerHTML=m;
+  $("tag").textContent=QUOTES[Math.max(0,dayN()-1)%QUOTES.length];
+  drawCard();
+}
+function drawCard(){
+  const c=$("card"),x=c.getContext("2d"),W=1200,H=627,t=totals(),L=lvl(t.xp),F='"Bricolage Grotesque",system-ui,sans-serif';
+  const g=x.createLinearGradient(0,0,W,H);g.addColorStop(0,"#091A2B");g.addColorStop(1,"#1F5F86");x.fillStyle=g;x.fillRect(0,0,W,H);
+  let r=7;for(let i=0;i<80;i++){r=(r*9301+49297)%233280;const px=r/233280*W;r=(r*9301+49297)%233280;const py=r/233280*H;x.fillStyle="rgba(255,255,255,"+(.12+(i%4)*.1)+")";x.beginPath();x.arc(px,py,1+i%3,0,7);x.fill()}
+  x.fillStyle="#fff";x.font="800 84px "+F;x.fillText("❄️ Winter Arc",64,130);
+  x.fillStyle="#BFE0F2";x.font="400 34px "+F;x.fillText("Day "+Math.max(1,dayN())+" of 90  |  Level "+L+": "+TITLES[Math.min(L-1,5)]+"  |  Avg wake "+wakeStats().avg,64,188);
+  [[streaks()[0],"day streak","#FF8A5C"],[t.perfect,"perfect days","#fff"],[t.xp,"XP earned","#fff"]].forEach((s,i)=>{
+    x.fillStyle=s[2];x.font="800 130px "+F;x.fillText(String(s[0]),64+i*360,350);x.fillStyle="#BFE0F2";x.font="400 30px "+F;x.fillText(s[1],64+i*360,395)});
+  for(let i=0;i<90;i++){const k=addDays(S.start,i),n=cnt(k),f=k>todayK;
+    x.fillStyle=f?"rgba(255,255,255,.1)":n===0?"rgba(255,255,255,.2)":n<=2?"#8EC3E1":n<=4?"#BFE0F2":"#fff";
+    x.fillRect(64+(i%30)*36,470+Math.floor(i/30)*36,30,30)}
+}
+function burst(){
+  if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+  for(let i=0;i<22;i++){const e=document.createElement("div");e.textContent="❄️";e.style.cssText="position:fixed;left:"+(10+Math.random()*80)+"vw;top:-30px;font-size:"+(16+Math.random()*20)+"px;pointer-events:none;z-index:9";document.body.appendChild(e);
+    e.animate([{transform:"translateY(0)",opacity:1},{transform:"translateY(105vh) rotate(240deg)",opacity:.2}],{duration:1800+Math.random()*1400,easing:"ease-in"}).onfinish=()=>e.remove()}
+}
+let tl=1500,tm=null;
+const tdraw=()=>{$("tm").textContent=String(Math.floor(tl/60)).padStart(2,"0")+":"+String(tl%60).padStart(2,"0")};
+$("tGo").onclick=()=>{
+  if(tm){clearInterval(tm);tm=null;$("tGo").textContent="Resume";return}
+  $("tGo").textContent="Pause";
+  tm=setInterval(()=>{tl--;tdraw();if(tl<=0){clearInterval(tm);tm=null;tl=1500;tdraw();$("tGo").textContent="Start focus";const d=day(todayK);d.st=(d.st||0)+0.5;save();render();$("tNote").textContent="Session complete: 0.5 study hours logged."}},1000)};
+$("tReset").onclick=()=>{clearInterval(tm);tm=null;tl=1500;tdraw();$("tGo").textContent="Start focus"};
+$("theme").onclick=()=>{const r=document.documentElement,cur=r.dataset.theme||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");r.dataset.theme=cur==="dark"?"light":"dark"};
+let dls=null;
+(async()=>{try{dls=dlShim}catch(e){} if(!dls)$("dl").style.display="none"})();
+$("dl").onclick=()=>{drawCard();$("card").toBlob(b=>{dls.save({filename:"winter-arc-day-"+Math.max(1,dayN())+".png",data:b}).catch(()=>{})},"image/png")};
+$("capGo").onclick=async()=>{
+  if(!sample){$("cap").value="The caption writer is not available right now.";return}
+  const t=totals();$("cap").value="Writing...";
+  try{await sample((plat()==="X"?"Write an X post under 260 characters":"Write a "+plat()+" post, 110 to 150 words")+", first person, honest and not boastful, about my 90-day 'Winter Arc' habit challenge. Mention that I built the tracker myself with Python-style data logic, a database, charts and an Smart coach. Plain text, a short hook line first, 3 to 5 hashtags at the end, no markdown. My real numbers: day "+Math.max(1,dayN())+" of 90, current streak "+streaks()[0]+", best streak "+streaks()[1]+", perfect days "+t.perfect+", level "+lvl(t.xp)+", glasses of water logged "+t.water+", study hours "+t.study+".",{onText:({text})=>{$("cap").value=text},cache:false})}
+  catch(e){$("cap").value="Could not write the caption right now. Try again in a moment."}};
+const plat=()=>$("plat").value;
+$("capCopy").onclick=()=>{const a=$("cap");a.select();try{document.execCommand("copy");$("capCopy").textContent="Copied"}catch(e){}setTimeout(()=>$("capCopy").textContent="Copy caption",1500)};
+function applyTab(){document.querySelectorAll(".tab").forEach(x=>x.hidden=x.id!=="t-"+S.tab);document.querySelectorAll("#foldMenu button").forEach(b=>b.setAttribute("aria-selected",b.dataset.tab===S.tab));const cur=document.querySelector('#foldMenu [data-tab="'+S.tab+'"]');if(cur)$("foldName").textContent=cur.textContent;$("foldMenu").hidden=true;$("foldBtn").setAttribute("aria-expanded","false")}
+const foldToggle=o=>{const m=$("foldMenu");m.hidden=o===undefined?!m.hidden:!o;$("foldBtn").setAttribute("aria-expanded",String(!m.hidden))};
+$("foldBtn").onclick=()=>foldToggle();
+document.addEventListener("click",e=>{if(!e.target.closest(".fold"))foldToggle(false)});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")foldToggle(false)});
+document.addEventListener("click",e=>{const b=e.target.closest("[data-q]");if(!b)return;$("aiQ").value=b.dataset.q;$("aiGo").click()});
+const BGS=[["none","Plain"],["snow","Snow"],["fall","Falling snow"],["dots","Dots"],["grid","Grid"],["stripes","Stripes"],["aurora","Aurora"]];
+function applyBg(){document.body.dataset.bg=S.bg;$("bgs").innerHTML=BGS.map(b=>`<button class="ghost" data-bg="${b[0]}" aria-pressed="${S.bg===b[0]}">${b[1]}</button>`).join("")}
+$("bgs").addEventListener("click",e=>{const b=e.target.closest("[data-bg]");if(!b)return;e.stopPropagation();S.bg=b.dataset.bg;save();applyBg()});
+applyBg();
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(drawCard);
+render();
+</script>
+</body></html>
